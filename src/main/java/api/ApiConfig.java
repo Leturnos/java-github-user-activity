@@ -15,7 +15,16 @@ public class ApiConfig {
                 .GET()
                 .build();
 
-        return client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 404) {
+            throw new RuntimeException("User not found, please check your username");
+        }
+        if (response.statusCode() == 403) {
+            throw new RuntimeException("GitHub API rate limit exceeded, please try again later");
+        }
+
+        return  response;
     }
 }
 
