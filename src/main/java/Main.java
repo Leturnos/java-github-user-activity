@@ -1,7 +1,6 @@
 import api.ApiConfig;
 import util.CliFormatter;
 
-import java.io.IOException;
 import java.net.http.HttpResponse;
 
 public class Main {
@@ -14,7 +13,7 @@ public class Main {
             if (args[0].equals("github-activity") && args.length == 2) {
                 try {
                     HttpResponse<String> response = ApiConfig.setRequest(args[1]);
-                    CliFormatter.formatResponse(response);
+                    CliFormatter.printFormattedResponse(response);
                 } catch (RuntimeException e) {
                     System.out.println("Error: " + e.getMessage());
                 } catch (Exception e) {
