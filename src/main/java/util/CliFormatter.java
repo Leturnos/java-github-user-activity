@@ -12,27 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 public class CliFormatter {
-    public static List<GitHubEvent> transformToList(HttpResponse<String> response) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(response.body(), new TypeReference<List<GitHubEvent>>() {});
-    }
-
     public static void printFormattedResponse (HttpResponse<String> response) throws JsonProcessingException {
         List<GitHubEvent> events = transformToList(response);
 
         System.out.println("Output:");
 
         Map<String, Map<GitHubEventType, Integer>> repoActivity = new LinkedHashMap<>();
-
-        for (GitHubEvent event:events) {
-            String repoName = event.getRepo().getName();
-            GitHubEventType type = GitHubEventType.fromApi(event.getType());
-
-            repoActivity.putIfAbsent(repoName, new EnumMap<>(GitHubEventType.class));
-            Map<GitHubEventType, Integer> eventCounts = repoActivity.get(repoName);
-
-            eventCounts.put(type, eventCounts.getOrDefault(type, 0) + 1);
-        }
+        OrganizeByRepository(events, repoActivity);
 
         repoActivity.forEach((repoName, activities) -> {
             activities.forEach((type, count) -> {
@@ -45,11 +31,29 @@ public class CliFormatter {
                             System.out.println("- Created " + count + " resource(s) in " + repoName);
                     case ISSUES_EVENT ->
                             System.out.println("- Opened " + count + " issue(s) in " + repoName);
-                    default ->
+                    default -> // other events
                             System.out.println("- " + type.name() + ": " + count + " event(s) in " + repoName);
                 }
             });
         });
-    };
+    }
+
+    public static List<GitHubEvent> transformToList(HttpResponse<String> response) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(response.body(), new TypeReference<List<GitHubEvent>>() {});
+    }
+
+    private static void OrganizeByRepository(List<GitHubEvent> events, Map<String, Map<GitHubEventType, Integer>> repoActivity) {
+        for (GitHubEvent event: events) {
+            String repoName = event.getRepo().getName();
+            GitHubEventType type = GitHubEventType.fromApi(event.getType());
+
+            // if the repository doesn't exist create an EnumMap else: don't do anything
+            repoActivity.putIfAbsent(repoName, new EnumMap<>(GitHubEventType.class));
+
+            Map<GitHubEventType, Integer> eventCounts = repoActivity.get(repoName);
+            eventCounts.put(type, eventCounts.getOrDefault(type, 0) + 1);
+        }
+    }
 }
 

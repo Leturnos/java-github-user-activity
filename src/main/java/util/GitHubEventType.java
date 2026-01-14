@@ -17,6 +17,7 @@ public enum GitHubEventType {
         this.type = type;
     }
 
+    // String -> Enum
     public static GitHubEventType fromApi(String apiName) {
         for (GitHubEventType type : values()) {
             if (type.type.equals(apiName)) {
