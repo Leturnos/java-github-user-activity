@@ -8,17 +8,8 @@ import java.util.Objects;
 public class GitHubEvent {
     private String type;
     private Repo repo;
-    private Payload payload;
 
     public GitHubEvent(){}
-
-    public Payload getPayload() {
-        return payload;
-    }
-
-    public void setPayload(Payload payload) {
-        this.payload = payload;
-    }
 
     public Repo getRepo() {
         return repo;
@@ -40,11 +31,11 @@ public class GitHubEvent {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         GitHubEvent that = (GitHubEvent) o;
-        return Objects.equals(getType(), that.getType()) && Objects.equals(getRepo(), that.getRepo()) && Objects.equals(getPayload(), that.getPayload());
+        return Objects.equals(getType(), that.getType()) && Objects.equals(getRepo(), that.getRepo());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getType(), getRepo(), getPayload());
+        return Objects.hash(getType(), getRepo());
     }
 }
